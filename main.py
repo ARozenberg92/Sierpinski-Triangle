@@ -54,19 +54,18 @@ def get_final_vertex(V1, V2):
     return(int(V3[0]), int(V3[1]))
 
 
-def sign(p1, p2, p3):
-    return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
-
-
 def in_triangle(point_coord):
+    # uses barycentric coordinates to determine if point lies in triangle
+    # does not currently account for edge cases
     global V1, V2, V3
-    d1 = sign(point_coord, V1, V2)
-    d2 = sign(point_coord, V2, V3)
-    d3 = sign(point_coord, V3, V1)
-    has_neg = d1 < 0 or d2 < 0 or d3 < 0
-    has_pos = d1 > 0 or d2 > 0 or d3 > 0
+    alpha = ((V2[1] - V3[1]) * (point_coord[0] - V3[0]) + (V3[0] - V2[0]) * (point_coord[1] -
+                                                                             V3[1])) / ((V2[1] - V3[1]) * (V1[0] - V3[0]) + (V3[0] - V2[0]) * (V1[1] - V3[1]))
+    beta = ((V3[1] - V1[1]) * (point_coord[0] - V3[0]) + (V1[0] - V3[0]) * (point_coord[1] -
+                                                                            V3[1])) / ((V2[1] - V3[1]) * (V1[0] - V3[0]) + (V3[0] - V2[0]) * (V1[1] - V3[1]))
+    gamma = 1 - alpha - beta
 
-    return has_neg and has_pos  # returns true when not in triangle
+    # returns true if point is in triangle
+    return (0 < alpha < 1) and (0 < beta < 1) and (0 < gamma < 1)
 
 
 def draw_point(coordinate, fill_color):
@@ -96,9 +95,10 @@ def sierpensify():
     min_x = min([V1[0], V2[0], V3[0]])
     max_y = max([V1[1], V2[1], V3[1]])
     min_y = min([V1[1], V2[1], V3[1]])
+
     intial_point = [random.randrange(
         min_x, max_x), random.randrange(min_y, max_y)]
-    while in_triangle(intial_point):
+    while not in_triangle(intial_point):
         intial_point = [random.randrange(
             min_x, max_x), random.randrange(min_y, max_y)]
 
